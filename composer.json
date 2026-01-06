@@ -1,0 +1,88 @@
+{
+    "name": "burovoordeboeg/wp-install",
+    "type": "project",
+    "license": "MIT",
+    "description": "WordPress boilerplate with Composer, easier configuration, and an improved folder structure",
+    "homepage": "https://burovoordeboeg.nl",
+    "authors": [
+        {
+            "name": "Justin Streuper",
+            "email": "justin@burovoordeboeg.nl",
+            "homepage": "https://burovoordeboeg.nl"
+        }
+    ],
+    "keywords": [
+        "bedrock",
+        "composer",
+        "wordpress",
+        "wp"
+    ],
+    "support": {
+        "issues": "https://github.com/burovoordeboeg/bedrock-composer-installer/issues"
+    },
+    "repositories": {
+        "satispress": {
+            "type": "composer",
+            "url": "https://packages.burovoordeboeg.nl/satispress/"
+        }
+    },
+    "require": {
+        "php": ">=8.1",
+        "composer/installers": "^2.2",
+        "vlucas/phpdotenv": "^5.5",
+        "oscarotero/env": "^2.1",
+        "roots/wordpress": "6.9",
+        "burovoordeboeg/advanced-custom-fields-pro": "*",
+        "burovoordeboeg/gravityforms": "*",
+        "burovoordeboeg/wp-migrate-db-pro": "*",
+        "burovoordeboeg/basecamp": "*"
+    },
+    "require-dev": {
+
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "composer/installers": true,
+            "roots/wordpress-core-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "BvdB\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "installer-paths": {
+            "public/content/mu-plugins/{$name}/": [
+                "type:wordpress-muplugin"
+            ],
+            "public/content/plugins/{$name}/": [
+                "type:wordpress-plugin"
+            ],
+            "public/content/themes/{$name}/": [
+                "type:wordpress-theme"
+            ]
+        },
+        "wordpress-install-dir": "public/wp",
+        "bvdb": {
+            "setup_url": "https://api.burovoordeboeg.nl/env/setup.tar.gz",
+            "salts_url": "https://api.burovoordeboeg.nl/env/",
+            "licenses_url": "https://api.burovoordeboeg.nl/env/licenses.php?newlines",
+            "setup_map": {
+                "config": "config",
+                ".env": ".env",
+                "ray.php": "ray.php",
+                "index.php": "public/index.php",
+                "wp-config.php": "public/wp-config.php",
+                ".htaccess": "public/.htaccess"
+            }
+        }
+    },
+    "scripts": {
+        "bvdb:setup": "BvdB\\Installer\\Setup::run"
+    }
+}

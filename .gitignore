@@ -1,0 +1,5 @@
+.env
+config
+public
+vendor
+composer.lock
