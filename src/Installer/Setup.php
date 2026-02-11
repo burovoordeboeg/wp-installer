@@ -218,6 +218,7 @@ final class Setup
         $dbPass = self::ask($io, 'Database password', '');
 				$dbName = self::ask($io, 'Database username', 'wordpress');
         $dbPrefix = self::ask($io, 'Database prefix', 'vmst_');
+				$dbHost = self::ask($io, 'Database host', '127.0.0.1');
 
         $domainDefault = basename(dirname($envPath));
         $domain = self::ask($io, 'Domain (for WP_HOME)', $domainDefault);
@@ -227,7 +228,7 @@ final class Setup
         self::setEnvValue($envPath, 'DB_NAME', $dbName);
         self::setEnvValue($envPath, 'DB_USER', $dbUser);
         self::setEnvValue($envPath, 'DB_PASSWORD', self::quote($dbPass));
-        self::setEnvValue($envPath, 'DB_HOST', 'localhost');
+        self::setEnvValue($envPath, 'DB_HOST', $dbHost);
         self::setEnvValue($envPath, 'DB_PREFIX', $dbPrefix);
         self::setEnvValue($envPath, 'WP_HOME', $wpHome);
         self::setEnvValue($envPath, 'WP_ENV', $wpEnv);
