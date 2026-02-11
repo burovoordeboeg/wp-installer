@@ -39,6 +39,7 @@ final class Setup
             $tarPath = self::extractTarGz($archivePath, $extractDir);
 
             $setupRoot = self::locateSetupRoot($extractDir);
+            self::fixConfigWebDir($setupRoot, $io);
             $map = (array) ($config['setup_map'] ?? []);
             self::applySetupMap($setupRoot, $root, $map, $io);
 
@@ -142,6 +143,39 @@ final class Setup
         return $extractDir;
     }
 
+    private static function fixConfigWebDir(string $setupRoot, IOInterface $io): void
+    {
+        $configPath = $setupRoot . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.php';
+        if (!file_exists($configPath)) {
+            $io->write('<comment>No config/config.php found in setup package; skipping web_dir update.</comment>');
+            return;
+        }
+
+        $contents = file_get_contents($configPath);
+        if ($contents === false) {
+            throw new RuntimeException('Unable to read ' . $configPath);
+        }
+
+        $pattern = '/^\\s*\\$web_dir\\s*=\\s*\\$root_dir\\s*\\.\\s*[\'"]\\/public_html[\'"]\\s*;\\s*$/m';
+        $replacement = '$web_dir    = $root_dir . \'/public\';';
+        $updated = preg_replace($pattern, $replacement, $contents, 1, $count);
+
+        if ($updated === null) {
+            throw new RuntimeException('Failed to update ' . $configPath);
+        }
+
+        if ($count === 0) {
+            $io->write('<comment>No web_dir assignment to update in config/config.php.</comment>');
+            return;
+        }
+
+        if (file_put_contents($configPath, $updated) === false) {
+            throw new RuntimeException('Unable to write ' . $configPath);
+        }
+
+        $io->write('<info>Updated web_dir in config/config.php to /public.</info>');
+    }
+
     private static function applySetupMap(string $sourceRoot, string $projectRoot, array $map, IOInterface $io): void
     {
         if ($map === []) {
@@ -180,8 +214,9 @@ final class Setup
         self::injectRemoteMarker($envPath, 'WPSALTS', $config['salts_url'] ?? '', $io);
         self::injectRemoteMarker($envPath, 'WPLICENSES', $config['licenses_url'] ?? '', $io);
 
-        $dbUser = self::ask($io, 'Database username', 'wordpress');
+				$dbUser = self::ask($io, 'Database username', 'root');
         $dbPass = self::ask($io, 'Database password', '');
+				$dbName = self::ask($io, 'Database username', 'wordpress');
         $dbPrefix = self::ask($io, 'Database prefix', 'vmst_');
 
         $domainDefault = basename(dirname($envPath));
@@ -189,7 +224,7 @@ final class Setup
         $wpHome = self::ask($io, 'WP_HOME url', 'https://' . $domain);
         $wpEnv = self::ask($io, 'WP_ENV (development/acceptance/production)', 'development');
 
-        self::setEnvValue($envPath, 'DB_NAME', $dbUser);
+        self::setEnvValue($envPath, 'DB_NAME', $dbName);
         self::setEnvValue($envPath, 'DB_USER', $dbUser);
         self::setEnvValue($envPath, 'DB_PASSWORD', self::quote($dbPass));
         self::setEnvValue($envPath, 'DB_HOST', 'localhost');
